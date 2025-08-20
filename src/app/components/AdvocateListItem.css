@@ -1,0 +1,138 @@
+
+  
+.advocate-table td {
+padding: 20px 16px;
+font-size: 13px;
+color: #374151;
+border: none;
+vertical-align: middle;
+}
+
+/* Name columns styling */
+.advocate-name {
+  font-weight: 600;
+  color: #1f2937;
+}
+
+/* City styling */
+.advocate-city {
+  color: #6b7280;
+  font-weight: 500;
+}
+
+/* Degree styling */
+.advocate-degree {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  font-weight: 600;
+  border-radius: 20px;
+  padding: 8px 16px;
+  text-align: center;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 60px;
+  height: 100%;
+}
+
+/* Specialties styling */
+.advocate-specialties {
+  padding: 16px;
+}
+
+.specialties-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.specialty-tag {
+  background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+  color: #4b5563;
+  padding: 6px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+  border: 1px solid #e5e7eb;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.specialty-tag:hover {
+  background: linear-gradient(135deg, #e5e7eb 0%, #d1d5db 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Experience styling */
+.advocate-experience {
+  text-align: center;
+  font-weight: 600;
+  color: #059669;
+  background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+  padding: 8px 16px;
+  margin: 0 8px;
+}
+
+/* Phone styling */
+.advocate-phone {
+    font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace;
+    color: #6b7280;
+    font-weight: 500;
+}
+/* Animation for new items */
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.advocate-table tbody tr {
+  animation: slideIn 0.3s ease-out;
+}
+
+/* Loading state */
+.advocate-table.loading tbody tr {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+/* Search highlight */
+.search-highlight {
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  padding: 2px 4px;
+  border-radius: 4px;
+  font-weight: 600;
+}
+
+/* Responsive design for table */
+@media (max-width: 768px) {
+  .advocate-table {
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  }
+  
+  .advocate-table thead th,
+  .advocate-table td {
+    padding: 16px 12px;
+    font-size: 13px;
+  }
+  
+  .specialties-list {
+    gap: 6px;
+  }
+  
+  .specialty-tag {
+    padding: 4px 8px;
+    font-size: 11px;
+  }
+}
