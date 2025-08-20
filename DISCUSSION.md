@@ -10,3 +10,4 @@
 8. Fine tune search/filtering
 9. ~~Move filtering/sorting over to API logic~~
 10. Add pagination
+11. Add tag based searching for relative specialties
