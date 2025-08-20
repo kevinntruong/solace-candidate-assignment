@@ -1,19 +1,21 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { AdvocateService } from "./api/services/advocateService";
 
 export default function Home() {
   const [advocates, setAdvocates] = useState([]);
   const [filteredAdvocates, setFilteredAdvocates] = useState([]);
 
   useEffect(() => {
-    console.log("fetching advocates...");
-    fetch("/api/advocates").then((response) => {
-      response.json().then((jsonResponse) => {
-        setAdvocates(jsonResponse.data);
-        setFilteredAdvocates(jsonResponse.data);
+    AdvocateService.getAdvocates()
+      .then((res) => {
+        setAdvocates(res.data);
+        setFilteredAdvocates(res.data);
+      })
+      .catch((err) => {
+        console.log(err);
       });
-    });
   }, []);
 
   const onChange = (e) => {
