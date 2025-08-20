@@ -1,14 +1,18 @@
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
+import { advocates } from "./schema";
 
 const setup = () => {
   if (!process.env.DATABASE_URL) {
     console.error("DATABASE_URL is not set");
+    // Return a properly typed mock that matches Drizzle ORM interface
     return {
       select: () => ({
-        from: () => [],
+        from: () => ({
+          where: () => [],
+        }),
       }),
-    };
+    } as any; // Type assertion to avoid complex typing issues
   }
 
   // for query purposes
