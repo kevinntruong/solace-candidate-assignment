@@ -8,3 +8,4 @@
 6. Style Front End
 7. Responsive Layout
 8. Fine tune search/filtering
+9. Move filtering/sorting over to API logic
