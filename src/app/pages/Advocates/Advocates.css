@@ -244,4 +244,36 @@
       align-items: flex-start;
     }
   }
+
+.sortable-header {
+  cursor: pointer;
+  user-select: none;
+  position: relative;
+  transition: background-color 0.2s ease;
+}
+
+.sortable-header:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.sort-indicator {
+  margin-left: 8px;
+  font-size: 14px;
+  opacity: 0.6;
+  transition: opacity 0.2s ease;
+}
+
+.sort-asc {
+  color: #10b981;
+  opacity: 1;
+}
+
+.sort-desc {
+  color: #10b981;
+  opacity: 1;
+}
+
+.sortable-header:hover .sort-indicator {
+  opacity: 1;
+}
   

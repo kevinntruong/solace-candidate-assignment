@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { AdvocateService } from "../../api/services/advocateService";
-import AdvocateListItem from "../../components/AdvocateListItem";
+import AdvocateListItem from "../../components/AdvocateListItem/AdvocateListItem";
 import "./Advocates.css";
+import SortableHeader from "../../components/SortableHeader/SortableHeader";
 
 interface Advocate {
   firstName: string;
@@ -15,74 +16,86 @@ interface Advocate {
   phoneNumber: number;
 }
 
+// Custom hook for debouncing
+const useDebounce = (value: string, delay: number) => {
+  const [debouncedValue, setDebouncedValue] = useState(value);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedValue(value);
+    }, delay);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [value, delay]);
+
+  return debouncedValue;
+};
+
 const AdvocatesPage = () => {
   const [advocates, setAdvocates] = useState<Advocate[]>([]);
   const [filteredAdvocates, setFilteredAdvocates] = useState<Advocate[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [sortField, setSortField] = useState<string>("");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Debounce the search term with 300ms delay
+  const debouncedSearchTerm = useDebounce(searchTerm, 300);
 
   useEffect(() => {
     AdvocateService.getAdvocates()
       .then((res: any) => {
-        setAdvocates(res.data);
-        setFilteredAdvocates(res.data);
+        setAdvocates(res);
+        setFilteredAdvocates(res);
       })
       .catch((err: any) => {
         console.log(err);
       });
   }, []);
 
+  // Use debounced search term for API calls
   useEffect(() => {
-    setFilter(searchTerm);
-  }, [searchTerm]);
+    if (debouncedSearchTerm !== searchTerm) return; // Only proceed if debounced value matches current value
+
+    setFilter(debouncedSearchTerm);
+  }, [debouncedSearchTerm]);
 
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
   };
 
-  const setFilter = useCallback(
-    (searchTerm: string) => {
-      //Set Filter
-      const filteredAdvocates = advocates.filter((advocate) => {
-        const normalizedSearchTerm = searchTerm.toLowerCase();
+  const SortBy = async (
+    sortBy: "firstName" | "lastName" | "city" | "degree" | "yearsOfExperience"
+  ) => {
+    // Toggle order if clicking same field, otherwise default to asc
+    const newOrder =
+      sortBy === sortField && sortOrder === "asc" ? "desc" : "asc";
 
-        const firstNameMatch = advocate.firstName
-          .toLowerCase()
-          .includes(normalizedSearchTerm);
-
-        const lastNameMatch = advocate.lastName
-          .toLowerCase()
-          .includes(normalizedSearchTerm);
-
-        const cityMatch = advocate.city
-          .toLowerCase()
-          .includes(normalizedSearchTerm);
-
-        const degreeMatch = advocate.degree
-          .toLowerCase()
-          .includes(normalizedSearchTerm);
-
-        const specialtiesMatch = advocate.specialties.find((s) => {
-          return s.toLowerCase().includes(normalizedSearchTerm);
-        });
-
-        const yearsOfExperienceMatch = advocate.yearsOfExperience
-          .toString()
-          .includes(normalizedSearchTerm);
-
-        return (
-          firstNameMatch ||
-          lastNameMatch ||
-          cityMatch ||
-          degreeMatch ||
-          specialtiesMatch ||
-          yearsOfExperienceMatch
-        );
+    setSortField(sortBy);
+    setSortOrder(newOrder);
+    AdvocateService.getAdvocates(null, sortBy, newOrder)
+      .then((res: any) => {
+        setAdvocates(res);
+        setFilteredAdvocates(res);
+      })
+      .catch((err: any) => {
+        console.log(err);
       });
+  };
 
-      setFilteredAdvocates(filteredAdvocates);
-    },
-    [advocates]
-  );
+  const setFilter = useCallback(async (searchTerm: string) => {
+    setIsLoading(true);
+    try {
+      const res = await AdvocateService.getAdvocates(searchTerm);
+      setFilteredAdvocates(res);
+    } catch (error) {
+      console.error("Error filtering advocates:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
 
   const resetSearch = () => {
     setSearchTerm("");
@@ -121,8 +134,11 @@ const AdvocatesPage = () => {
           </p>
           <p className="results-count">
             Showing{" "}
-            <span className="results-number">{filteredAdvocates.length}</span>{" "}
-            of {advocates.length} advocates
+            <span className="results-number">{filteredAdvocates?.length}</span>{" "}
+            of {advocates?.length} advocates
+            {isLoading && (
+              <span className="loading-indicator"> (Searching...)</span>
+            )}
           </p>
         </div>
       </div>
@@ -131,17 +147,47 @@ const AdvocatesPage = () => {
         <table className="advocate-table">
           <thead>
             <tr>
-              <th>First Name</th>
-              <th>Last Name</th>
-              <th>City</th>
-              <th>Degree</th>
-              <th>Specialties</th>
-              <th>Years of Experience</th>
-              <th>Phone Number</th>
+              <SortableHeader
+                sortBy={SortBy}
+                sortField={sortField}
+                sortOrder={sortOrder}
+                field={"firstName"}
+                header="First Name"
+              />
+              <SortableHeader
+                sortBy={SortBy}
+                sortField={sortField}
+                sortOrder={sortOrder}
+                field={"lastName"}
+                header="Last Name"
+              />
+              <SortableHeader
+                sortBy={SortBy}
+                sortField={sortField}
+                sortOrder={sortOrder}
+                field={"city"}
+                header="City"
+              />
+              <SortableHeader
+                sortBy={SortBy}
+                sortField={sortField}
+                sortOrder={sortOrder}
+                field={"degree"}
+                header="Degree"
+              />
+              <th className="header">Specialties</th>
+              <SortableHeader
+                sortBy={SortBy}
+                sortField={sortField}
+                sortOrder={sortOrder}
+                field={"yearsOfExperience"}
+                header="Years of Experience"
+              />
+              <th className="header">Phone Number</th>
             </tr>
           </thead>
           <tbody>
-            {filteredAdvocates.map((advocate, index) => (
+            {filteredAdvocates?.map((advocate, index) => (
               <AdvocateListItem
                 key={`${advocate.firstName}-${advocate.lastName}-${index}`}
                 advocate={advocate}
@@ -150,7 +196,7 @@ const AdvocatesPage = () => {
           </tbody>
         </table>
 
-        {filteredAdvocates.length === 0 && (
+        {filteredAdvocates?.length === 0 && (
           <div className="empty-state">
             <p>No advocates found matching your search criteria.</p>
             <button className="clear-search-button" onClick={resetSearch}>
